@@ -2,14 +2,14 @@
 CREATE TABLE User_Score(
 UID int(11) NOT NULL,
 GID int(11) NOT NULL,
-Class int(11) NOT NULL,
+CID int(11) NOT NULL,
 Ranking int(11),
 Score int(11) NOT NULL,
 Time int(11) NOT NULL,
 Manip int(11) NOT NULL,
 Time_score int(11) NOT NULL,
 Manip_score int(11) NOT NULL,
-PRIMARY KEY (UID, GID, Class)
+PRIMARY KEY (UID, GID, CID)
 );
 
 // discard
