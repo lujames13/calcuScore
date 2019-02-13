@@ -1,0 +1,56 @@
+
+CREATE TABLE User_Score(
+UID int(11) NOT NULL,
+GID int(11) NOT NULL,
+Class int(11) NOT NULL default 'global',
+Ranking int(11),
+Score int(11) NOT NULL,
+Time int(11) NOT NULL,
+Manip int(11) NOT NULL,
+Time_score int(11),
+Manip_score int(11),
+PRIMARY KEY (UID, GID, Class)
+);
+
+// discard
+CREATE TABLE Leaderboard(
+GID varchar(255) NOT NULL,
+UID int NOT NULL,
+Class varchar(255) NOT NULL,
+Ranking int,
+Score int,
+Name varchar(255),
+PRIMARY KEY (UID, GID, Class)
+);
+
+// add score
+'INSERT INTO user_score (UID, GID, Score, Time, Manip, Time_score, Manip_score, CID)'
+                         ' VALUES (%d, %d, %d, %d, %d, %d, %d, %d);'
+                         % (UID, GID, Score, Time, Manip, Time_score, Manip_score, CID)
+
+// update score
+UPDATE user_score 
+SET Score=%d, Time=%d, Manip=%d, Time_score=%d, Manip_score=%d, Ranking=NULL
+WHERE UID=%d AND GID=%d AND CID=%d;
+
+// ranking symtax
+SELECT a1.UID, a1.Score, COUNT(a2.Score) AS Rankii
+FROM user_score a1, user_score a2
+WHERE a1.Score < a2.Score or (a1.score=a2.score AND a1.UID=a2.UID)
+GROUP BY a1.UID, a1.Score
+ORDER BY a1.Score DESC, a1.UID DESC;
+
+// update Ranking (python)
+'''
+                UPDATE user_score
+                SET Ranking = (
+                    SELECT Ranking
+                    FROM (
+                        SELECT UID, GID, Score, CID, RANK() OVER(ORDER BY Score DESC) AS Ranking
+                        FROM user_score T
+                        WHERE CID = %d AND GID = %d
+                    ) D
+                    WHERE D.UID = user_score.UID AND D.GID = user_score.GID
+                )
+                WHERE CID = %d AND GID = %d;
+        ''' % (CID, GID, CID, GID)
