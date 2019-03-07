@@ -36,7 +36,23 @@ class Database:
                          % (Score, Time, Manip, Time_score, Manip_score, UID, GID, CID))
         return 'OK'
     def update_ranking(self, GID, CID):
-        sql = '''
+        # sql ranking command for MySQL 5.x
+        sql_5 = '''
+                UPDATE user_score
+                SET Ranking = (
+                    SELECT Ranking
+                    FROM (
+                        SELECT UID, GID, Score, CID, @curRank := @curRank + 1 AS Ranking
+                        FROM user_score T, (SELECT @curRank := 0) r
+                        WHERE CID = %d AND GID = %d
+                    ) D
+                    WHERE D.UID = user_score.UID AND D.GID = user_score.GID
+                )
+                WHERE CID = %d AND GID = %d;
+        ''' % (CID, GID, CID, GID)
+
+        # sql ranking command for MySQL 8.x
+        sql_8 = '''
                 UPDATE user_score
                 SET Ranking = (
                     SELECT Ranking
@@ -50,5 +66,5 @@ class Database:
                 WHERE CID = %d AND GID = %d;
         ''' % (CID, GID, CID, GID)
 
-        self.cur.execute(sql)
+        self.cur.execute(sql_5)
         return 'OK'
